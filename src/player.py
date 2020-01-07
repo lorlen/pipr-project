@@ -2,25 +2,52 @@ from abc import ABC, abstractmethod
 import random
 import re
 
-from util import *
+from util import Vec, Color
 
 
 class Player(ABC):
+    """
+    Abstract base class of all Neutron game players. Defines methods called by
+    the game to allow players to make decisions about the next move.
+
+    Args:
+        color (int): color of this player's soldiers.
+    """
+    def __init__(self, color):
+        self.color = color
+
     @abstractmethod
     def move_soldier(self, board):
+        """
+        Method called by the game when it's this player's turn to move one of
+        their soldiers.
+
+        Args:
+            board (neutron.NeutronBoard): board of the game played by this
+            player.
+        """
         pass
 
     @abstractmethod
     def move_neutron(self, board):
+        """
+        Method called by the game when it's this player's turn to move the
+        neutron.
+
+        Args:
+            board (neutron.NeutronBoard): board of the game played by this
+            player.
+        """
         pass
 
 
 class RandomPlayer(Player):
-    def __init__(self, color):
-        self.color = color
-
     def move_soldier(self, board):
-        soldier = random.choice([soldier for soldier in board.get_soldiers(self.color) if soldier.possible_directions])
+        soldier = random.choice([
+            soldier
+            for soldier in board.get_soldiers(self.color)
+            if soldier.possible_directions
+        ])
         soldier.move(random.choice(soldier.possible_directions))
 
     def move_neutron(self, board):
@@ -35,7 +62,7 @@ class HumanPlayer(Player):
     _pattern = re.compile(r'([ABCDE])([12345])')
 
     def __init__(self, color):
-        self.color = color
+        super().__init__(color)
         print(f'You control {Color.color_names[color]} soldiers')
 
     def move_soldier(self, board):
@@ -48,7 +75,11 @@ class HumanPlayer(Player):
                 print(f'The string {pos_str} cannot be interpreted as position.')
                 continue
             pos = Vec(ord(match.group(1)) - ord('A'), int(match.group(2)) - 1)
-            soldier = [soldier for soldier in board.get_soldiers(self.color) if soldier.pos == pos]
+            soldier = [
+                soldier
+                for soldier in board.get_soldiers(self.color)
+                if soldier.pos == pos
+            ]
             if not soldier:
                 print('This is not a position of your soldier.')
                 continue

@@ -1,0 +1,3 @@
+#!/bin/bash
+
+sphinx-apidoc -o ./source ../src ../src/test_neutron.py

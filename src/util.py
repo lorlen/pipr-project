@@ -1,13 +1,34 @@
 class Vec:
+    """
+    A very simple implementation of a 2D vector, used to facilitate operations
+    on positions and directions.
+
+    Args:
+        x (int): vector's x coordinate.
+        y (int): vector's y coordinate.
+    """
+    __slots__ = 'x', 'y'
+
     def __init__(self, x, y):
         self.x, self.y = int(x), int(y)
 
     @staticmethod
-    def fromtuple(numpy_pos):
-        return Vec(numpy_pos[1], numpy_pos[0])
+    def fromtuple(tuple_pos):
+        """
+        Creates a :class:`Vec` from tuple (y, x). This order of coordinates
+        was chosen to be compatible with NumPy's way of indexing
+        multidimensional arrays.
+
+        Args:
+            tuple_pos (tuple): an (y, x) tuple representing vector's coordinates.
+
+        Returns:
+            Vec: a newly created Vec.
+        """
+        return Vec(tuple_pos[1], tuple_pos[0])
 
     def __eq__(self, other):
-        return self.x == other.x and self.y == other.y
+        return other is not None and tuple(self) == tuple(other)
 
     def __add__(self, other):
         return Vec(self.x + other.x, self.y + other.y)

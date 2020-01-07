@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
 
+"""
+User Guide
+
+
+
+"""
+
 from neutron import NeutronGame
 from player import HumanPlayer, RandomPlayer
 from util import Color
