@@ -1,7 +1,6 @@
 import itertools
 import textwrap
 import numpy as np
-from colorama import Fore, Back, Style
 
 from util import Vec, Color, directions
 
@@ -26,61 +25,90 @@ class Soldier:
 
     @property
     def possible_directions(self):
-        """List of directions this Soldier can move
-
-        Works by checking for which directions :func:`NeutronBoard.furthest_empty_spot`
         """
-        return [
+        List of directions this :class:`Soldier` can move.
+
+        Works by calling :func:`NeutronBoard.furthest_empty_spot` for this
+        Soldier's position and filtering out ``None`` results.
+        """
+        return {
             dir
             for dir in directions
             if self._board.furthest_empty_spot(self.pos, dir) is not None
-        ]
+        }
 
     @property
     def possible_moves(self):
         """
-        List of positions this Soldier can be after one move.
+        List of positions this :class:`Soldier` can be after one move.
 
         Works by supplying :func:`NeutronBoard.furthest_empty_spot` with all
         possible directions, then filtering out ``None`` results.
         """
-        return filter(None, [
+        return {dir for dir in {
             self._board.furthest_empty_spot(self.pos, dir)
             for dir in directions
-        ])
+        } if dir is not None}
+
+    @property
+    def neighbors(self):
+        """
+        List of neighboring cells of this Soldier. A thin wrapper around
+        :func:`NeutronBoard.neighbors`.
+        """
+        return self._board.neighbors(self.pos)
 
     def move(self, direction):
         """
-        Tries to move this ``Soldier`` in the given direction.
+        Tries to move this :class:`Soldier` in the given direction.
 
-        For this method to succeed, the direction given must be present in
-        ``self.possible_directions``.
+        This method will fail if the given direction is not in
+        :attr:`possible_directions`.
 
         Works by calling :func:`NeutronBoard.furthest_empty_spot`, setting
-        the position returned by this function to this Soldier's color,
-        and the original position to 0.
+        the position returned by this function to this :class:`Soldier`'s
+        color, and the original position to 0.
 
         Args:
-            direction (str): direction in which to move this Soldier.
+            direction (str): direction in which to move this :class:`Soldier`.
 
         Raises:
             ValueError: if the given direction is not in
-            self.possible_directions.
+            :attr:`possible_directions`.
         """
         if direction not in self.possible_directions:
-            raise ValueError('not possible to move in this direction')
+            raise ValueError(f'not possible to move in direction {direction}')
         dst = self._board.furthest_empty_spot(self.pos, direction)
         self._board.grid[tuple(dst)] = self.color
         self._board.grid[tuple(self.pos)] = 0
         self.pos = dst
+
+    def move_to_pos(self, position):
+        """
+        Tries to move this :class:`Soldier' to a given position.
+
+        This method will fail if the given position is not in
+        :attr:`possible_moves`
+
+        Args:
+            position (util.Vec): position to which move this :class:`Soldier`
+
+        Raises:
+            ValueError: if the given position is not in :attr:`possible_moves`
+        """
+        if position not in self.possible_moves:
+            raise ValueError(f'not possible to move to position {position}')
+        self._board.grid[tuple(position)] = self.color
+        self._board.grid[tuple(self.pos)] = 0
+        self.pos = position
 
 
 class Neutron(Soldier):
     """
     A special case of a :class:`Soldier`.
 
-    A ``Neutron`` is different from a ``Soldier`` only by having a unique color
-    value.
+    A :class:`Neutron` is different from a :class:`Soldier` only by having a
+    unique color value.
     """
     VALUE = 1
 
@@ -101,22 +129,29 @@ class NeutronBoard:
         board data.
 
     Attributes:
-        grid (numpy.array): the array containing raw data of this board.
-        white_soldiers (list): list of Soldier objects representing white soldiers.
-        black_soldiers (list): list of Soldier objects representing black soldiers.
+        grid (numpy.array): the array containing raw data of this board. Only
+        for testing purposes
+        white_soldiers (list): list of :class:`Soldier` objects representing
+        white soldiers.
+        black_soldiers (list): list of :class:`Soldier` objects representing
+        black soldiers.
     """
     def __init__(self, starting_grid=None):
-        if not isinstance(starting_grid, np.ndarray):
-            starting_grid = np.array(starting_grid)
-        if starting_grid.shape != (5, 5):
-            raise ValueError(f'Invalid game board shape: {starting_grid.shape}')
-        self.grid = np.array(starting_grid) if starting_grid is not None else np.array([
-            [3, 3, 3, 3, 3],
-            [0, 0, 0, 0, 0],
-            [0, 0, 1, 0, 0],
-            [0, 0, 0, 0, 0],
-            [2, 2, 2, 2, 2]
-        ])
+        if starting_grid:
+            if not isinstance(starting_grid, np.ndarray):
+                starting_grid = np.array(starting_grid)
+            if starting_grid.shape != (5, 5):
+                raise ValueError(
+                    f'Invalid game board shape: {starting_grid.shape}'
+                )
+        self.grid = np.array(starting_grid) if starting_grid is not None \
+            else np.array([
+                [3, 3, 3, 3, 3],
+                [0, 0, 0, 0, 0],
+                [0, 0, 1, 0, 0],
+                [0, 0, 0, 0, 0],
+                [2, 2, 2, 2, 2]
+            ])
 
         self.white_soldiers = [
             Soldier(self, Vec.fromtuple(idx), Color.WHITE)
@@ -139,10 +174,11 @@ class NeutronBoard:
             color (int): color of the soldiers.
 
         Returns:
-            list: a list of Soldier objects containing all soldiers of a given color.
+            list: a list of :class:`Soldier` objects containing all soldiers
+            of a given color.
 
         Raises:
-            ValueError: if the color given is not a valid soldier color
+            ValueError: if the color given is not a valid soldier color.
         """
         if color == Color.WHITE:
             return self.white_soldiers
@@ -205,13 +241,14 @@ class NeutronBoard:
         """
         neighbors = []
         for y in range(max(0, pos.y - 1), min(pos.y + 2, len(self.grid))):
-            for x in range(max(0, pos.x - 1), min(pos.x + 2, len(self.grid[y]))):
+            for x in range(max(0, pos.x - 1),
+                           min(pos.x + 2, len(self.grid[y]))):
                 if x != pos.x or y != pos.y:
                     neighbors.append(self.grid[y, x])
         return neighbors
 
     def __str__(self):
-        grid_str = Fore.BLACK + Back.YELLOW + textwrap.dedent("""
+        grid_str = textwrap.dedent("""
                 1   2   3   4   5
               +---+---+---+---+---+
             A | {} | {} | {} | {} | {} |
@@ -223,22 +260,20 @@ class NeutronBoard:
             D | {} | {} | {} | {} | {} |
               +---+---+---+---+---+
             E | {} | {} | {} | {} | {} |
-              +---+---+---+---+---+""") + Style.RESET_ALL
+              +---+---+---+---+---+""")
 
         color_map = {
-            Color.WHITE: Fore.WHITE,
-            Color.BLACK: Fore.BLACK,
-            Neutron.VALUE: Fore.RED
+            Color.WHITE: '\u25cf',
+            Color.BLACK: '\u25cb',
+            Neutron.VALUE: '@',
+            0: ' '
         }
 
-        formats = []
-
-        for j in range(self.grid.shape[0]):
-            for i in range(self.grid.shape[1]):
-                if self.grid[j, i]:
-                    formats.append(color_map[self.grid[j, i]] + '\u2022' + Fore.BLACK)
-                else:
-                    formats.append(' ')
+        formats = [
+            color_map[self.grid[j, i]]
+            for j in range(self.grid.shape[0])
+            for i in range(self.grid.shape[1])
+        ]
 
         return grid_str.format(*formats)
 
@@ -248,11 +283,13 @@ class NeutronGame:
     The main Neutron game class.
 
     Args:
+        board (neutron.NeutronBoard): the game board to be used by this
+        game instance
         first_player (player.Player): the player who will start the game
         second_player (player.Player): the second player
     """
-    def __init__(self, first_player, second_player):
-        self.board = NeutronBoard()
+    def __init__(self, board, first_player, second_player):
+        self.board = board
         self.players = itertools.cycle([first_player, second_player])
         self.current_player = next(self.players)
         self.winner = None
@@ -267,16 +304,21 @@ class NeutronGame:
             self.play_round()
 
         print(self.board)
-        print(f'{Color.color_names[self.winner]} player won the game!'.capitalize())
+        print(f'{Color.color_names[self.winner]} player won the game!'
+              .capitalize())
 
     def play_round(self):
         """Plays one round, swapping players afterwards."""
         if not self.initial_round:
-            self.current_player.move_neutron(self.board)
+            print(self.board)
+            self.current_player.move_neutron()
             if self.check_won():
                 return
 
-        self.current_player.move_soldier(self.board)
+        print(self.board)
+
+        self.current_player.move_soldier()
+
         if self.check_won():
             return
 
@@ -285,13 +327,16 @@ class NeutronGame:
 
     def check_won(self):
         """
-        Checks if the game was won, updating self.winner variable with the
+        Checks if the game was won, updating ``self.winner`` variable with the
         color of the winning player.
 
         Returns:
             int: winning player's color
         """
-        if all(neighbor != 0 for neighbor in self.board.neighbors(self.board.neutron.pos)):
+        if all(
+            neighbor != 0
+            for neighbor in self.board.neighbors(self.board.neutron.pos)
+        ):
             self.winner = self.current_player.color
         elif self.board.neutron.pos.y == 0:
             self.winner = Color.BLACK

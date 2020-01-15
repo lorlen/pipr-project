@@ -20,7 +20,8 @@ class Vec:
         multidimensional arrays.
 
         Args:
-            tuple_pos (tuple): an (y, x) tuple representing vector's coordinates.
+            tuple_pos (tuple): an (y, x) tuple representing vector's
+            coordinates.
 
         Returns:
             Vec: a newly created Vec.
@@ -29,6 +30,9 @@ class Vec:
 
     def __eq__(self, other):
         return other is not None and tuple(self) == tuple(other)
+
+    def __hash__(self):
+        return hash(tuple(self))
 
     def __add__(self, other):
         return Vec(self.x + other.x, self.y + other.y)

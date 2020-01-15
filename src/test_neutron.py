@@ -1,6 +1,7 @@
 from neutron import NeutronBoard
 from util import Vec
 
+
 def test_move():
     board = NeutronBoard([
         [2, 0, 0, 0, 0],
@@ -29,6 +30,7 @@ def test_move():
     assert soldier.pos == (4, 0)
     soldier.move('northeast')
     assert soldier.pos == (0, 4)
+
 
 def test_neighbors():
     board = NeutronBoard([
