@@ -20,8 +20,8 @@ class Vec:
         multidimensional arrays.
 
         Args:
-            tuple_pos (tuple): an (y, x) tuple representing vector's
-            coordinates.
+            tuple_pos (tuple):
+                a (y, x) tuple representing vector's coordinates.
 
         Returns:
             Vec: a newly created Vec.

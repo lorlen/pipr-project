@@ -73,8 +73,8 @@ class Soldier:
             direction (str): direction in which to move this :class:`Soldier`.
 
         Raises:
-            ValueError: if the given direction is not in
-            :attr:`possible_directions`.
+            ValueError:
+                if the given direction is not in :attr:`possible_directions`.
         """
         if direction not in self.possible_directions:
             raise ValueError(f'not possible to move in direction {direction}')
@@ -125,16 +125,17 @@ class NeutronBoard:
     provide useful functions for the game's logic.
 
     Args:
-        starting_grid (:class:`numpy.array`): array representing starting
-        board data.
+        starting_grid (:class:`numpy.array`):
+            array representing starting board data.
 
     Attributes:
-        grid (numpy.array): the array containing raw data of this board. Only
-        for testing purposes
-        white_soldiers (list): list of :class:`Soldier` objects representing
-        white soldiers.
-        black_soldiers (list): list of :class:`Soldier` objects representing
-        black soldiers.
+        grid (numpy.array):
+            the array containing raw data of this board. Only
+            for testing purposes
+        white_soldiers (list):
+            list of :class:`Soldier` objects representing white soldiers.
+        black_soldiers (list):
+            list of :class:`Soldier` objects representing black soldiers.
     """
     def __init__(self, starting_grid=None):
         if starting_grid:
@@ -174,8 +175,9 @@ class NeutronBoard:
             color (int): color of the soldiers.
 
         Returns:
-            list: a list of :class:`Soldier` objects containing all soldiers
-            of a given color.
+            list:
+                a list of :class:`Soldier` objects containing all soldiers
+                of a given color.
 
         Raises:
             ValueError: if the color given is not a valid soldier color.
@@ -210,8 +212,9 @@ class NeutronBoard:
             dir (str or util.Vec): direction in which to move.
 
         Returns:
-            util.Vec: position of the furthest empty spot in the line of sight
-            of source position, or ``None`` if the movement cannot be made.
+            util.Vec:
+                position of the furthest empty spot in the line of sight of
+                source position, or ``None`` if the movement cannot be made.
         """
         orig_pos = pos
         if not isinstance(dir, Vec):
@@ -283,8 +286,8 @@ class NeutronGame:
     The main Neutron game class.
 
     Args:
-        board (neutron.NeutronBoard): the game board to be used by this
-        game instance
+        board (neutron.NeutronBoard):
+            the game board to be used by this game instance
         first_player (player.Player): the player who will start the game
         second_player (player.Player): the second player
     """

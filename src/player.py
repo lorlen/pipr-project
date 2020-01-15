@@ -12,8 +12,8 @@ class Player(ABC):
     the game to allow players to make decisions about the next move.
 
     Args:
-        board (neutron.NeutronBoard): board of the game played by this
-        player.
+        board (neutron.NeutronBoard):
+            board of the game played by this player.
         color (int): color of this player's soldiers.
         home_row (int): index of this player's home row on board.
     """
