@@ -85,16 +85,16 @@ class Soldier:
 
     def move_to_pos(self, position):
         """
-        Tries to move this :class:`Soldier' to a given position.
+        Tries to move this :class:`Soldier` to a given position.
 
         This method will fail if the given position is not in
-        :attr:`possible_moves`
+        :attr:`possible_moves`.
 
         Args:
-            position (util.Vec): position to which move this :class:`Soldier`
+            position (util.Vec): position to which move this :class:`Soldier`.
 
         Raises:
-            ValueError: if the given position is not in :attr:`possible_moves`
+            ValueError: if the given position is not in :attr:`possible_moves`.
         """
         if position not in self.possible_moves:
             raise ValueError(f'not possible to move to position {position}')

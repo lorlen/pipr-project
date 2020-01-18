@@ -4,5 +4,5 @@
 \contentsline {section}{\numberline {1.2}neutron module}{1}{section.1.2}% 
 \contentsline {section}{\numberline {1.3}player module}{3}{section.1.3}% 
 \contentsline {section}{\numberline {1.4}util module}{5}{section.1.4}% 
-\contentsline {chapter}{Python Module Index}{6}{section*.45}% 
-\contentsline {chapter}{Index}{7}{section*.46}% 
+\contentsline {chapter}{Python Module Index}{6}{section*.46}% 
+\contentsline {chapter}{Index}{7}{section*.47}% 

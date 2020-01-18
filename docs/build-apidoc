@@ -1,3 +1,3 @@
 #!/bin/bash
 
-sphinx-apidoc -o ./source ../src ../src/test_neutron.py
+sphinx-apidoc -o ./source ../src ../src/test_neutron.py ../src/test_player.py

@@ -72,7 +72,7 @@
 
 
 \title{PyNeutron}
-\date{Jan 15, 2020}
+\date{Jan 18, 2020}
 \release{}
 \author{Filip Lew}
 \newcommand{\sphinxlogo}{\vbox{}}
@@ -375,16 +375,16 @@ color, and the original position to 0.
 
 \begin{fulllineitems}
 \phantomsection\label{\detokenize{neutron:neutron.Soldier.move_to_pos}}\pysiglinewithargsret{\sphinxbfcode{\sphinxupquote{move\_to\_pos}}}{\emph{position}}{}
-Tries to move this :class:{\color{red}\bfseries{}{}`}Soldier’ to a given position.
+Tries to move this {\hyperref[\detokenize{neutron:neutron.Soldier}]{\sphinxcrossref{\sphinxcode{\sphinxupquote{Soldier}}}}} to a given position.
 
 This method will fail if the given position is not in
-{\hyperref[\detokenize{neutron:neutron.Soldier.possible_moves}]{\sphinxcrossref{\sphinxcode{\sphinxupquote{possible\_moves}}}}}
+{\hyperref[\detokenize{neutron:neutron.Soldier.possible_moves}]{\sphinxcrossref{\sphinxcode{\sphinxupquote{possible\_moves}}}}}.
 \begin{quote}\begin{description}
 \item[{Parameters}] \leavevmode
-\sphinxstyleliteralstrong{\sphinxupquote{position}} ({\hyperref[\detokenize{util:util.Vec}]{\sphinxcrossref{\sphinxstyleliteralemphasis{\sphinxupquote{util.Vec}}}}}) \textendash{} position to which move this {\hyperref[\detokenize{neutron:neutron.Soldier}]{\sphinxcrossref{\sphinxcode{\sphinxupquote{Soldier}}}}}
+\sphinxstyleliteralstrong{\sphinxupquote{position}} ({\hyperref[\detokenize{util:util.Vec}]{\sphinxcrossref{\sphinxstyleliteralemphasis{\sphinxupquote{util.Vec}}}}}) \textendash{} position to which move this {\hyperref[\detokenize{neutron:neutron.Soldier}]{\sphinxcrossref{\sphinxcode{\sphinxupquote{Soldier}}}}}.
 
 \item[{Raises}] \leavevmode
-\sphinxstyleliteralstrong{\sphinxupquote{ValueError}} \textendash{} if the given position is not in {\hyperref[\detokenize{neutron:neutron.Soldier.possible_moves}]{\sphinxcrossref{\sphinxcode{\sphinxupquote{possible\_moves}}}}}
+\sphinxstyleliteralstrong{\sphinxupquote{ValueError}} \textendash{} if the given position is not in {\hyperref[\detokenize{neutron:neutron.Soldier.possible_moves}]{\sphinxcrossref{\sphinxcode{\sphinxupquote{possible\_moves}}}}}.
 
 \end{description}\end{quote}
 
@@ -501,6 +501,10 @@ their soldiers.
 \begin{fulllineitems}
 \phantomsection\label{\detokenize{player:player.RandomPlayer}}\pysiglinewithargsret{\sphinxbfcode{\sphinxupquote{class }}\sphinxcode{\sphinxupquote{player.}}\sphinxbfcode{\sphinxupquote{RandomPlayer}}}{\emph{board}, \emph{color}, \emph{home\_row}}{}
 Bases: {\hyperref[\detokenize{player:player.Player}]{\sphinxcrossref{\sphinxcode{\sphinxupquote{player.Player}}}}}
+
+A player that plays the game by randomly moving his soldiers around the
+board. The randomness has one exception: the player won’t move the neutron
+into the enemy row, unless forced to.
 \index{move\_neutron() (player.RandomPlayer method)@\spxentry{move\_neutron()}\spxextra{player.RandomPlayer method}}
 
 \begin{fulllineitems}
@@ -531,10 +535,16 @@ Bases: {\hyperref[\detokenize{player:player.RandomPlayer}]{\sphinxcrossref{\sphi
 A player that tries to apply some simple rules to increase its winning
 chance. If no rule can be applied in the current situation, it falls
 back to random movement.
+\index{avoid\_enemy\_row() (player.StrategyPlayer method)@\spxentry{avoid\_enemy\_row()}\spxextra{player.StrategyPlayer method}}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{player:player.StrategyPlayer.avoid_enemy_row}}\pysiglinewithargsret{\sphinxbfcode{\sphinxupquote{avoid\_enemy\_row}}}{}{}
+\end{fulllineitems}
+
 \index{block\_enemy\_row() (player.StrategyPlayer method)@\spxentry{block\_enemy\_row()}\spxextra{player.StrategyPlayer method}}
 
 \begin{fulllineitems}
-\phantomsection\label{\detokenize{player:player.StrategyPlayer.block_enemy_row}}\pysiglinewithargsret{\sphinxbfcode{\sphinxupquote{block\_enemy\_row}}}{\emph{soldiers}, \emph{enemy\_row}}{}
+\phantomsection\label{\detokenize{player:player.StrategyPlayer.block_enemy_row}}\pysiglinewithargsret{\sphinxbfcode{\sphinxupquote{block\_enemy\_row}}}{\emph{soldiers}}{}
 Tries to block an empty spot in enemy’s home row by putting one of the
 soldiers in there.
 \begin{quote}\begin{description}

@@ -48,6 +48,15 @@ class Vec:
         return f'({self.x}, {self.y})'
 
 
+class Color:
+    WHITE = 2
+    BLACK = 3
+    color_names = {
+        WHITE: 'white',
+        BLACK: 'black'
+    }
+
+
 directions = {
     'north': Vec(0, -1),
     'northeast': Vec(1, -1),
@@ -59,11 +68,13 @@ directions = {
     'northwest': Vec(-1, -1)
 }
 
-
-class Color:
-    WHITE = 2
-    BLACK = 3
-    color_names = {
-        WHITE: 'white',
-        BLACK: 'black'
-    }
+directions_abbrev = {
+    'n': 'north',
+    'ne': 'northeast',
+    'e': 'east',
+    'se': 'southeast',
+    's': 'south',
+    'sw': 'southwest',
+    'w': 'west',
+    'nw': 'northwest',
+}

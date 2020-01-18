@@ -3,7 +3,7 @@ import random
 import re
 import numpy as np
 
-from util import Vec, Color
+from util import Vec, Color, directions_abbrev
 
 
 class Player(ABC):
@@ -21,6 +21,7 @@ class Player(ABC):
         self.board = board
         self.color = color
         self.home_row = home_row
+        self.enemy_row = len(self.board.grid) - 1 - self.home_row
 
     @abstractmethod
     def move_soldier(self):
@@ -40,6 +41,11 @@ class Player(ABC):
 
 
 class RandomPlayer(Player):
+    """
+    A player that plays the game by randomly moving his soldiers around the
+    board. The randomness has one exception: the player won't move the neutron
+    into the enemy row, unless forced to.
+    """
     def move_soldier(self):
         soldier = random.choice([
             soldier
@@ -60,7 +66,7 @@ class StrategyPlayer(RandomPlayer):
     chance. If no rule can be applied in the current situation, it falls
     back to random movement.
     """
-    def block_enemy_row(self, soldiers, enemy_row):
+    def block_enemy_row(self, soldiers):
         """
         Tries to block an empty spot in enemy's home row by putting one of the
         soldiers in there.
@@ -72,32 +78,32 @@ class StrategyPlayer(RandomPlayer):
         Returns:
             bool: ``True`` if the move was successful, ``False`` otherwise
         """
-        empty_enemy_pos = [
-            Vec(x, enemy_row)
-            for x in range(len(self.board.grid[enemy_row]))
-            if self.board.grid[enemy_row, x] == 0
+        empty_enemy_pos = {
+            Vec(x, self.enemy_row)
+            for x in range(len(self.board.grid[self.enemy_row]))
+            if self.board.grid[self.enemy_row, x] == 0
+        }
+
+        losing_positions = self.board.neutron.possible_moves & empty_enemy_pos
+
+        eligible_soldiers = [
+            (soldier, soldier.possible_moves & losing_positions)
+            for soldier in soldiers
+            if soldier.possible_moves & losing_positions
         ]
 
-        losing_positions = [
-            pos
-            for pos in self.board.neutron.possible_moves
-            if pos in empty_enemy_pos
-        ]
-
-        eligible_soldiers = []
-
-        for soldier in soldiers:
-            moves = [
-                pos
-                for pos in soldier.possible_moves
-                if pos in losing_positions
+        # if there is no empty place the neutron can move immediately to,
+        # still try to block some empty enemy row spot.
+        if not eligible_soldiers:
+            eligible_soldiers = [
+                (soldier, soldier.possible_moves & empty_enemy_pos)
+                for soldier in soldiers
+                if soldier.possible_moves & empty_enemy_pos
             ]
-            if moves:
-                eligible_soldiers.append((soldier, moves))
 
         if eligible_soldiers:
             soldier, moves = random.choice(eligible_soldiers)
-            soldier.move_to_pos(random.choice(moves))
+            soldier.move_to_pos(random.choice(tuple(moves)))
             return True
 
         return False
@@ -130,12 +136,20 @@ class StrategyPlayer(RandomPlayer):
         y, x = self.board.neutron.pos
         maxy, maxx = self.board.grid.shape
 
-        empty_neighbors = set(zip(*np.where(
+        # as we find coordinates of empty neighbors in an subarray, we need to
+        # map those coordinates back to global ones.
+        def mapper(t):
+            return Vec.fromtuple(t) + Vec(x - 1, y - 1)
+
+        empty_neighbors = set(map(mapper, zip(*np.where(
             self.board.grid[
                 max(0, y-1):min(maxy, y+2),
                 max(0, x-1):min(maxx, x+2)
             ] == 0
-        )))
+        ))))
+
+        if len(empty_neighbors) != 1:
+            return False
 
         eligible_soldiers = [
             (soldier, soldier.possible_moves & empty_neighbors)
@@ -150,22 +164,34 @@ class StrategyPlayer(RandomPlayer):
 
         return False
 
+    def avoid_enemy_row(self):
+        not_enemy_row = [
+            pos
+            for pos in self.board.neutron.possible_moves
+            if pos.y != self.enemy_row
+        ]
+
+        if not_enemy_row:
+            self.board.neutron.move_to_pos(random.choice(not_enemy_row))
+            return True
+
+        return False
+
     def move_soldier(self):
         soldiers = self.board.get_soldiers(self.color)
-        enemy_row = len(self.board.grid) - 1 - self.home_row
 
         if self.block_neutron(soldiers):
-            pass
-        elif self.block_enemy_row(soldiers, enemy_row):
-            pass
-        else:
-            super().move_soldier()
+            return
+        if self.block_enemy_row(soldiers):
+            return
+        super().move_soldier()
 
     def move_neutron(self):
         if self.move_into_home():
-            pass
-        else:
-            super().move_neutron()
+            return
+        if self.avoid_enemy_row():
+            return
+        super().move_neutron()
 
 
 class HumanPlayer(Player):
@@ -175,12 +201,23 @@ class HumanPlayer(Player):
         super().__init__(board, color, home_row)
         print(f'You control {Color.color_names[color]} soldiers')
 
+    @staticmethod
+    def _input_or_exit(prompt):
+        input_str = input(prompt)
+        if input_str.strip().lower() == 'exit':
+            exit()
+        else:
+            return input_str
+
     def move_soldier(self):
         print(f"You're moving a {Color.color_names[self.color]} soldier.")
         while True:
-            pos_str = input('Enter coordinates of soldier you want to move: ')
+            pos_str = self._input_or_exit(
+                'Enter coordinates of soldier you want to move: '
+            )
             match = self._pattern.fullmatch(pos_str.strip().upper())
             if not match:
+                print(self.board)
                 print(
                     f'The string {pos_str} cannot be interpreted as position.'
                 )
@@ -192,21 +229,27 @@ class HumanPlayer(Player):
                 if soldier.pos == pos
             ]
             if not soldier:
+                print(self.board)
                 print('This is not a position of your soldier.')
                 continue
-            dir = input('Enter direction you want to move: ')
+            dir = self._input_or_exit('Enter direction you want to move: ')
             if dir in soldier[0].possible_directions:
                 soldier[0].move(dir)
                 break
+            elif dir in directions_abbrev.keys():
+                soldier[0].move(directions_abbrev[dir])
+                break
             else:
+                print(self.board)
                 print("You can't move in this direction.")
 
     def move_neutron(self):
         print(f"You're moving the neutron")
         while True:
-            dir = input('Enter direction you want to move: ')
+            dir = self._input_or_exit('Enter direction you want to move: ')
             if dir in self.board.neutron.possible_directions:
                 self.board.neutron.move(dir)
                 break
             else:
+                print(self.board)
                 print(f"You can't move in this direction")
