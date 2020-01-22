@@ -1,5 +1,5 @@
 from neutron import NeutronBoard
-from player import StrategyPlayer, RandomPlayer
+from player import StrategyPlayer
 from util import Color
 
 
@@ -51,6 +51,6 @@ def test_avoid_enemy_row():
             [0, 0, 0, 0, 0],
             [2, 2, 2, 2, 2],
         ])
-        player = RandomPlayer(board, Color.WHITE, 4)
+        player = StrategyPlayer(board, Color.WHITE, 4)
         player.move_neutron()
         assert all(board.grid[0, x] == 0 for x in range(1, 4))
