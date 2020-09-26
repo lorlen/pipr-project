@@ -250,6 +250,9 @@ class HumanPlayer(Player):
             if dir in self.board.neutron.possible_directions:
                 self.board.neutron.move(dir)
                 break
+            elif dir in directions_abbrev.keys():
+                self.board.neutron.move(directions_abbrev[dir])
+                break
             else:
                 print(self.board)
                 print(f"You can't move in this direction")
